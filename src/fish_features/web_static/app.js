@@ -74,6 +74,7 @@ function renderDetail(index){
   $('detail-body').innerHTML=`<p class="detail-file">${esc(img.relative_path)} · ${img.width} × ${img.height} px · ID ${img.image_id}</p>
   <div class="preview-grid">${previews.map(([key,title])=>`<figure><img src="/media/${img.image_id}?kind=${key}${config}" alt="${title}"><figcaption>${title}</figcaption></figure>`).join('')}</div>
   <p class="muted">Mặt nạ và đường bao được dựng lại từ ảnh gốc theo ngưỡng của cấu hình đang chọn. Các vector bên dưới là dữ liệu đã lưu trong CSDL.</p>
+  <button id="query-this-image" class="primary">Dùng ảnh này tìm tương đồng</button>
   ${!feature ? '<div class="error">Ảnh này chưa có bộ đặc trưng hợp lệ trong CSDL.</div>' : `
   <div class="detail-toolbar"><label>Cấu hình trích rút<select id="config-choice">${current.features.map((f,i)=>`<option value="${i}" ${i===index?'selected':''}>${esc(f.parameters.algorithm_version)} · ${f.config_id.slice(0,12)} · ${new Date(f.extracted_at).toLocaleString('vi-VN')}</option>`).join('')}</select></label><button id="download" class="secondary">Tải dữ liệu JSON</button></div>
   <div class="metrics">${[['Aspect Ratio',feature.geometry[0]],['Solidity',feature.geometry[1]],['Extent',feature.geometry[2]],['Diện tích mask',feature.metadata.area]].map(([label,value])=>`<div class="metric"><span>${label}</span><strong>${decimal(value)}</strong></div>`).join('')}</div>
@@ -82,6 +83,7 @@ function renderDetail(index){
   <details class="feature-panel"><summary>Thông tin phân đoạn & kiểm tra</summary><pre>${esc(JSON.stringify(feature.metadata,null,2))}</pre></details>
   <details class="feature-panel"><summary>Tham số thuật toán & số chiều</summary><pre>${esc(JSON.stringify({config_id:feature.config_id,parameters:feature.parameters,dimensions:feature.dimensions},null,2))}</pre></details>`}`;
   $('detail-body').querySelectorAll('img').forEach(el=>el.onerror=()=>el.alt='Không tải được ảnh. Kiểm tra thư mục data/images.');
+  $('query-this-image').onclick=()=>{$('detail').close();document.dispatchEvent(new CustomEvent('search-dataset',{detail:img.image_id}));};
   if(feature){
     $('config-choice').onchange=e=>renderDetail(Number(e.target.value));
     $('feature-choice').onchange=drawFeature;

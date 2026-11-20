@@ -1,0 +1,475 @@
+{
+  "protocol": "species_stratified_holdout_v1",
+  "seed": 42,
+  "relevance": "same species_code from filename (proxy for visual similarity)",
+  "feature_config_id": "dee14083f1e017e28de89081ea10c392b830bb7331a19d6e70459a809c9ee484",
+  "feature_config": {
+    "algorithm_version": "1.0.0",
+    "expected_width": 640,
+    "expected_height": 320,
+    "white_threshold": 245,
+    "gray_levels": 32,
+    "glcm_offsets": [
+      [
+        0,
+        1
+      ],
+      [
+        -1,
+        1
+      ],
+      [
+        -1,
+        0
+      ],
+      [
+        -1,
+        -1
+      ]
+    ],
+    "lbp_points": 8,
+    "lbp_radius": 1,
+    "contour_samples": 256,
+    "fourier_count": 10,
+    "hsv_bins": [
+      12,
+      4,
+      4
+    ],
+    "spatial_columns": 3,
+    "spatial_rows": 2
+  },
+  "dataset_fingerprint": "16f0dc3e0a545ddee0a4b05220055b133609e6d941ed8b6c7dee0428674c734f",
+  "split_counts": {
+    "all": 1000,
+    "gallery": 530,
+    "validation": 208,
+    "test": 262,
+    "species": 323,
+    "singleton_species_gallery_only": 61
+  },
+  "selection_metric": "validation mean AP@5, denominator min(relevant_in_gallery,5)",
+  "candidate_weights": {
+    "color_only": {
+      "hsv": 0.5,
+      "spatial_hsv": 0.375,
+      "color_moments": 0.125,
+      "geometry": 0.0,
+      "fourier": 0.0,
+      "contour_profile": 0.0,
+      "glcm": 0.0,
+      "ulbp": 0.0
+    },
+    "shape_only": {
+      "hsv": 0.0,
+      "spatial_hsv": 0.0,
+      "color_moments": 0.0,
+      "geometry": 0.3333333333333333,
+      "fourier": 0.5,
+      "contour_profile": 0.16666666666666666,
+      "glcm": 0.0,
+      "ulbp": 0.0
+    },
+    "texture_only": {
+      "hsv": 0.0,
+      "spatial_hsv": 0.0,
+      "color_moments": 0.0,
+      "geometry": 0.0,
+      "fourier": 0.0,
+      "contour_profile": 0.0,
+      "glcm": 0.5,
+      "ulbp": 0.5
+    },
+    "balanced": {
+      "hsv": 0.16666666666666666,
+      "spatial_hsv": 0.125,
+      "color_moments": 0.041666666666666664,
+      "geometry": 0.1111111111111111,
+      "fourier": 0.16666666666666666,
+      "contour_profile": 0.05555555555555555,
+      "glcm": 0.16666666666666666,
+      "ulbp": 0.16666666666666666
+    },
+    "base_40_30_30": {
+      "hsv": 0.2,
+      "spatial_hsv": 0.15000000000000002,
+      "color_moments": 0.05,
+      "geometry": 0.09999999999999999,
+      "fourier": 0.15,
+      "contour_profile": 0.049999999999999996,
+      "glcm": 0.15,
+      "ulbp": 0.15
+    },
+    "color_60": {
+      "hsv": 0.3,
+      "spatial_hsv": 0.22499999999999998,
+      "color_moments": 0.075,
+      "geometry": 0.06666666666666667,
+      "fourier": 0.1,
+      "contour_profile": 0.03333333333333333,
+      "glcm": 0.1,
+      "ulbp": 0.1
+    },
+    "shape_60": {
+      "hsv": 0.1,
+      "spatial_hsv": 0.07500000000000001,
+      "color_moments": 0.025,
+      "geometry": 0.19999999999999998,
+      "fourier": 0.3,
+      "contour_profile": 0.09999999999999999,
+      "glcm": 0.1,
+      "ulbp": 0.1
+    },
+    "texture_60": {
+      "hsv": 0.1,
+      "spatial_hsv": 0.07500000000000001,
+      "color_moments": 0.025,
+      "geometry": 0.06666666666666667,
+      "fourier": 0.1,
+      "contour_profile": 0.03333333333333333,
+      "glcm": 0.3,
+      "ulbp": 0.3
+    }
+  },
+  "validation": {
+    "color_only": {
+      "queries": 208,
+      "precision_at_5": 0.04711538461538462,
+      "recall_at_5": 0.12900641025641024,
+      "hit_at_5": 0.20192307692307693,
+      "ap_at_5": 0.07573450854700854,
+      "ndcg_at_5": 0.10079332909137242
+    },
+    "shape_only": {
+      "queries": 208,
+      "precision_at_5": 0.06826923076923076,
+      "recall_at_5": 0.17147435897435898,
+      "hit_at_5": 0.27884615384615385,
+      "ap_at_5": 0.10506143162393163,
+      "ndcg_at_5": 0.14025360508855414
+    },
+    "texture_only": {
+      "queries": 208,
+      "precision_at_5": 0.025000000000000005,
+      "recall_at_5": 0.07131410256410256,
+      "hit_at_5": 0.1201923076923077,
+      "ap_at_5": 0.04495192307692307,
+      "ndcg_at_5": 0.0593378685209864
+    },
+    "balanced": {
+      "queries": 208,
+      "precision_at_5": 0.07596153846153847,
+      "recall_at_5": 0.20673076923076922,
+      "hit_at_5": 0.3076923076923077,
+      "ap_at_5": 0.13524305555555555,
+      "ndcg_at_5": 0.17133480983941793
+    },
+    "base_40_30_30": {
+      "queries": 208,
+      "precision_at_5": 0.07211538461538461,
+      "recall_at_5": 0.19471153846153846,
+      "hit_at_5": 0.28846153846153844,
+      "ap_at_5": 0.13185096153846151,
+      "ndcg_at_5": 0.16630968048118788
+    },
+    "color_60": {
+      "queries": 208,
+      "precision_at_5": 0.058653846153846154,
+      "recall_at_5": 0.16025641025641024,
+      "hit_at_5": 0.25961538461538464,
+      "ap_at_5": 0.11873664529914531,
+      "ndcg_at_5": 0.146250500158884
+    },
+    "shape_60": {
+      "queries": 208,
+      "precision_at_5": 0.08942307692307692,
+      "recall_at_5": 0.23076923076923078,
+      "hit_at_5": 0.375,
+      "ap_at_5": 0.15233707264957264,
+      "ndcg_at_5": 0.19483761092509214
+    },
+    "texture_60": {
+      "queries": 208,
+      "precision_at_5": 0.060576923076923084,
+      "recall_at_5": 0.1594551282051282,
+      "hit_at_5": 0.2548076923076923,
+      "ap_at_5": 0.11987179487179488,
+      "ndcg_at_5": 0.1467740976852485
+    }
+  },
+  "selected_candidate": "shape_60",
+  "selected_profile": {
+    "version": "retrieval-1.0.0",
+    "feature_config_id": "dee14083f1e017e28de89081ea10c392b830bb7331a19d6e70459a809c9ee484",
+    "top_k": 5,
+    "normalization": "gallery_population_std_rms_then_r_over_1_plus_r",
+    "exclude_identical_pixels": true,
+    "weights": {
+      "hsv": 0.1,
+      "spatial_hsv": 0.07500000000000001,
+      "color_moments": 0.025,
+      "geometry": 0.19999999999999998,
+      "fourier": 0.3,
+      "contour_profile": 0.09999999999999999,
+      "glcm": 0.1,
+      "ulbp": 0.1
+    },
+    "selection": {
+      "method": "max_validation_map_at_5",
+      "candidate": "shape_60",
+      "seed": 42,
+      "dataset_fingerprint": "16f0dc3e0a545ddee0a4b05220055b133609e6d941ed8b6c7dee0428674c734f"
+    }
+  },
+  "test": {
+    "selected": {
+      "queries": 262,
+      "precision_at_5": 0.11068702290076336,
+      "recall_at_5": 0.3244274809160305,
+      "hit_at_5": 0.4770992366412214,
+      "ap_at_5": 0.228254877014419,
+      "ndcg_at_5": 0.2788663628178855
+    },
+    "color_only": {
+      "queries": 262,
+      "precision_at_5": 0.04809160305343512,
+      "recall_at_5": 0.1380407124681934,
+      "hit_at_5": 0.21374045801526717,
+      "ap_at_5": 0.09965012722646309,
+      "ndcg_at_5": 0.12224753456929059
+    },
+    "shape_only": {
+      "queries": 262,
+      "precision_at_5": 0.07633587786259542,
+      "recall_at_5": 0.21628498727735368,
+      "hit_at_5": 0.32061068702290074,
+      "ap_at_5": 0.14536683630195082,
+      "ndcg_at_5": 0.18182897198941522
+    },
+    "texture_only": {
+      "queries": 262,
+      "precision_at_5": 0.03587786259541985,
+      "recall_at_5": 0.10432569974554708,
+      "hit_at_5": 0.16412213740458015,
+      "ap_at_5": 0.06574427480916031,
+      "ndcg_at_5": 0.08431774306105043
+    },
+    "balanced": {
+      "queries": 262,
+      "precision_at_5": 0.09389312977099237,
+      "recall_at_5": 0.2754452926208651,
+      "hit_at_5": 0.4083969465648855,
+      "ap_at_5": 0.19492154368108566,
+      "ndcg_at_5": 0.23857252515098046
+    }
+  },
+  "gallery_normalizers": {
+    "glcm": {
+      "mean": [
+        0.015391234261494047,
+        4.51700822902706,
+        0.5875018378728684,
+        0.9398114230078676,
+        7.041921238384741,
+        0.012137379209574783,
+        8.522264193545121,
+        0.5075338905391701,
+        0.8845131736025931,
+        7.426643935491496,
+        0.013935743987521931,
+        6.288779938666021,
+        0.5523730795794936,
+        0.9129725377491599,
+        7.216541900501578,
+        0.01218564669404934,
+        8.390173476729545,
+        0.5108931909150071,
+        0.8859017381007495,
+        7.410556041011265
+      ],
+      "std": [
+        0.012244030963055257,
+        3.1841433270719652,
+        0.10548357316218329,
+        0.04309006971082225,
+        0.7037873562464012,
+        0.010144392377980468,
+        5.2294895051634676,
+        0.09969467559927349,
+        0.07214993102061844,
+        0.6918795858170236,
+        0.011217625059369633,
+        3.5581238087261524,
+        0.09927696820228786,
+        0.05569231777967355,
+        0.6747275434001682,
+        0.010113797129842204,
+        4.782423581001139,
+        0.09831322538128998,
+        0.06868236648367,
+        0.6809551926756605
+      ]
+    },
+    "geometry": {
+      "mean": [
+        2.214089677333433,
+        0.7804918001858687,
+        0.5484176603258472
+      ],
+      "std": [
+        0.22875147136852206,
+        0.07770142891020843,
+        0.06129649143144043
+      ]
+    },
+    "fourier": {
+      "mean": [
+        0.10921520451647487,
+        0.11111390121625483,
+        0.031903214895307196,
+        0.06659751768790201,
+        0.041662115550620514,
+        0.032970795315853,
+        0.023244830902795062,
+        0.016173026615011448,
+        0.014639992565919012,
+        0.011849832132380073
+      ],
+      "std": [
+        0.05460354895777874,
+        0.026238749107911918,
+        0.020563014456456835,
+        0.020771877931393352,
+        0.0189475533416254,
+        0.017118357751872346,
+        0.01169104195712467,
+        0.009020195582007149,
+        0.007960473121896735,
+        0.006779222116318751
+      ]
+    },
+    "color_moments": {
+      "mean": [
+        0.5388703618036002,
+        0.48843273757476297,
+        0.40806064446486245,
+        0.20464018143417667,
+        0.20503586294468176,
+        0.20937784199228876,
+        -0.019015030996509592,
+        0.04206834339911371,
+        0.10579379195559764
+      ],
+      "std": [
+        0.13868534841754415,
+        0.12141671924463228,
+        0.12472600905208323,
+        0.047573114090946805,
+        0.04282711102960077,
+        0.04282861852381355,
+        0.16158399380217192,
+        0.1520120802231491,
+        0.14089012351206293
+      ]
+    }
+  },
+  "unseen_species_examples": [
+    {
+      "query": "species_5_acanthistius_cinctus_30.png",
+      "held_out_species": 5,
+      "gallery_count": 529,
+      "results": [
+        {
+          "path": "species_160_epinephelus_coeruleopunctatus_1444.png",
+          "distance": 0.3002592752805592,
+          "similarity": 0.6997407247194408
+        },
+        {
+          "path": "species_182_epinephelus_rivulatus_1662.png",
+          "distance": 0.3095677206016908,
+          "similarity": 0.6904322793983092
+        },
+        {
+          "path": "species_92_cephalopholis_formosa_839.png",
+          "distance": 0.3217502283103186,
+          "similarity": 0.6782497716896814
+        },
+        {
+          "path": "species_168_epinephelus_howlandi_1533.png",
+          "distance": 0.341588500718213,
+          "similarity": 0.658411499281787
+        },
+        {
+          "path": "species_173_epinephelus_melanostigma_1574.png",
+          "distance": 0.3466083203083617,
+          "similarity": 0.6533916796916384
+        }
+      ]
+    },
+    {
+      "query": "species_13_aethaloperca_rogaa_77.png",
+      "held_out_species": 13,
+      "gallery_count": 529,
+      "results": [
+        {
+          "path": "species_124_choerodon_zamboangae_1122.png",
+          "distance": 0.3410417292467405,
+          "similarity": 0.6589582707532595
+        },
+        {
+          "path": "species_117_choerodon_fasciatus_1068.png",
+          "distance": 0.3652051709727019,
+          "similarity": 0.6347948290272981
+        },
+        {
+          "path": "species_117_choerodon_fasciatus_1074.png",
+          "distance": 0.36845199378289734,
+          "similarity": 0.6315480062171026
+        },
+        {
+          "path": "species_103_cheilinus_oxycephalus_966.png",
+          "distance": 0.371797932878287,
+          "similarity": 0.628202067121713
+        },
+        {
+          "path": "species_121_choerodon_schoenleinii_1104.png",
+          "distance": 0.3719604555152506,
+          "similarity": 0.6280395444847494
+        }
+      ]
+    },
+    {
+      "query": "species_16_alepes_kleinii_98.png",
+      "held_out_species": 16,
+      "gallery_count": 528,
+      "results": [
+        {
+          "path": "species_68_carangoides_fulvoguttatus_612.png",
+          "distance": 0.33571337262589984,
+          "similarity": 0.6642866273741002
+        },
+        {
+          "path": "species_73_caranx_ignobilis_661.png",
+          "distance": 0.3553387992263119,
+          "similarity": 0.644661200773688
+        },
+        {
+          "path": "species_385_pseudocaranx_dentex_3585.png",
+          "distance": 0.35584825826069233,
+          "similarity": 0.6441517417393077
+        },
+        {
+          "path": "species_37_atule_mate_312.png",
+          "distance": 0.36460245099334954,
+          "similarity": 0.6353975490066505
+        },
+        {
+          "path": "species_411_sardinella_albella_3779.png",
+          "distance": 0.36848466362201054,
+          "similarity": 0.6315153363779895
+        }
+      ]
+    }
+  ],
+  "seconds": 7.896
+}

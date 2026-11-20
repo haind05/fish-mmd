@@ -59,6 +59,26 @@ Giao diện tại `http://127.0.0.1:8000` đọc dữ liệu PostgreSQL, có th�
 
 Sau bổ sung web: **17 kiểm thử Python đạt**, gồm các kiểm thử trước và kiểm tra HTTP/API, đường dẫn ảnh không vượt ra ngoài dataset, trang lỗi và hướng dẫn khi CSDL mất kết nối. Kiểm tra trình duyệt Chrome đạt các luồng phân trang, tìm kiếm, lọc loài, chi tiết, tám biểu đồ, tải JSON, kết quả rỗng và màn hình 390px; không ghi nhận lỗi JavaScript. Ảnh chụp kiểm tra trong `outputs/web-check/`.
 
-## Ý nghĩa và giới hạn của kết quả
+## Bổ sung mục 4 — tìm kiếm ảnh tương đồng
+
+Đã triển khai CLI `search`, `evaluate` và upload ảnh trên web. Cấu hình có hiệu lực ở `src/fish_features/retrieval_profile.json`; mọi lần truy vấn trả lại cấu hình, gallery fingerprint, mean/std chuẩn hóa và điểm từng nhóm.
+
+**28 kiểm thử Python đạt** sau bổ sung mục 4. Bổ sung kiểm chứng Hellinger, self distance bằng 0, loại ảnh trùng pixel, tổng đóng góp bằng khoảng cách tổng, nhãn loài không ảnh hưởng xếp hạng, xử lý spatial rỗng, chia holdout không giao nhau, công thức chỉ số, chuyển alpha/letterbox/lật và API upload/giới hạn dung lượng.
+
+Đã kiểm tra trực tiếp trên CSDL: trích lại một ảnh dataset cho query cho kết quả khớp chính xác cả 8 vector đã lưu, query bị loại khỏi top5 theo hash pixel. Browser Chrome đã kiểm tra upload ảnh, JPEG mới 480×240 được đưa về canvas chuẩn, thứ tự 5 kết quả, điểm từng nhóm, xem mọi vector, tải JSON, query từ gallery, lỗi ảnh hỏng và màn hình 390px; không có lỗi JavaScript. Ảnh chụp ở `outputs/web-check/retrieval.png` và `retrieval-mobile.png`.
+
+Đánh giá seed42: 530 gallery /208 validation /262 test, chọn trọng số 20% màu +60% hình dạng +20% kết cấu theo validation mAP@5 cao nhất trong 8 phương án. Test đạt P@5=0,110687; Recall@5=0,324427; Hit@5=0,477099; mAP@5=0,228255; nDCG@5=0,278866. Chi tiết protocol, giới hạn và cấu hình ở `docs/muc4.md`, số liệu gốc ở `docs/task4_evaluation.json`.
+
+## Bổ sung RMBG-2.0 cho ảnh upload
+
+Đã tích hợp phương pháp từ repo `DucHai278/Fish-Image-Retrieval-System`, model `briaai/RMBG-2.0` revision `6a88d6a65119856a743be87ec1e6bee6f08e1f93`, CPU, đầu vào 1024×1024, alpha mềm ghép nền trắng trước letterbox. Tham số và nguồn: `docs/background-removal.md`, `src/fish_features/background_profile.json`.
+
+**36 kiểm thử Python đạt**, `pip check` không báo xung đột. Bộ mới kiểm tra alpha/composite, thứ tự xử lý trước letterbox, bypass ảnh chuẩn, lỗi thiếu model không fallback âm thầm, tham số RGB Normalize/1024 bằng torch stub, API và việc bỏ qua model cho query chọn bằng ID dataset.
+
+Đã tải model bằng credential Hugging Face do người dùng đăng nhập trên máy và **chạy model thật qua API** với ảnh cá trên nền xám xanh: mask trước xử lý chiếm 100%, sau xử lý 27,6592%; không còn cảnh báo chạm biên/occupancy bất thường và trả đủ top5. Thời gian RMBG lần thử khoảng 59,8 giây CPU. Kết quả gốc ở `outputs/background-check/summary.json` và `result.json`. Đây là phép thử có kiểm soát trên một ảnh, không thay thế đánh giá ảnh mạng có nhãn.
+
+Web có nút bật/tắt RMBG, trạng thái model và các preview trước/sau. Số liệu holdout mục 4 vẫn giữ nguyên và chỉ áp dụng dataset đã chuẩn hóa, không coi là số liệu đánh giá RMBG.
+
+## Giới hạn tổng thể
 
 Các kết quả trên xác nhận quy trình trích rút và quản trị dữ liệu chạy được trên dataset, không phải đánh giá chất lượng truy hồi. Không có cảnh báo tự động không chứng minh 1.000 mặt nạ đều hoàn hảo. Số 323 là số mã loài trong tên file, chưa có bước kiểm chứng nhãn sinh học. Các thông số cơ sở và tám nhóm vector còn cần được đánh giá khi thực hiện mục 4.

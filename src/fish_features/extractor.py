@@ -11,6 +11,13 @@ from .color import color_features
 
 def extract(path, root, config, artifacts=None):
     image, raw = read_image(path, config)
+    return extract_array(image, raw, Path(path).relative_to(root).as_posix(), config, artifacts)
+
+
+def extract_array(image, raw, relative_path, config, artifacts=None):
+    """Dung chung cho anh dataset va anh truy van da dua ve canvas chuan."""
+    if image.dtype != np.uint8 or image.shape != (config.expected_height, config.expected_width, 3):
+        raise ValueError("Can anh BGR 8-bit tren canvas chuan")
     mask, contour, bbox, warnings, retained = segment(image, config.white_threshold)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     glcm, pairs = glcm_features(gray, mask, config)
@@ -24,8 +31,8 @@ def extract(path, root, config, artifacts=None):
     for name, values in groups.items():
         if len(values) != config.dimensions[name] or not np.isfinite(values).all():
             raise ValueError(f"Vector {name} khong hop le")
-    match = re.fullmatch(r"species_(\d+)_(.+)_(\d+)\.[^.]+", Path(path).name)
-    record = {"path": Path(path).relative_to(root).as_posix(),
+    match = re.fullmatch(r"species_(\d+)_(.+)_(\d+)\.[^.]+", Path(relative_path).name)
+    record = {"path": relative_path,
         "sha256": hashlib.sha256(raw).hexdigest(),
         "pixel_sha256": hashlib.sha256(image.tobytes()).hexdigest(),
         "width": image.shape[1], "height": image.shape[0],

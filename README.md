@@ -1,6 +1,22 @@
-# Trích rút đặc trưng ảnh cá — mục 3
+# Hệ thống lưu trữ và tìm kiếm ảnh cá — mục 3 & 4
+
+**Bắt đầu đọc tại [Tài liệu tổng hợp chi tiết](docs/huong-dan-tong-hop.md).** Tài liệu giải thích mục tiêu, kiến trúc, tham số trích rút, lý do và phạm vi chọn trọng số, cách chia tập/đánh giá, kết quả thực tế, setup từ đầu, sử dụng web/CLI và xử lý lỗi. Phân biệt rõ cấu hình baseline, tỷ lệ con đặt trước và trọng số nhóm lớn được chọn bằng validation.
 
 Triển khai mục 3 trong `assignment.txt`, kế thừa các đặc trưng ở chương 2 của `BaoCao_BTL.pdf` (81 trang). Python xử lý ảnh, PostgreSQL chạy bằng Docker. Ảnh giữ trên filesystem, CSDL lưu đường dẫn, thông tin ảnh, vector và cấu hình trích rút.
+
+Mục 4 đã bổ sung tìm kiếm **top 5 ảnh tương đồng**, giải thích điểm từng nhóm và đánh giá holdout. Xem [thuyết minh mục 4](docs/muc4.md) và [cấu hình đang dùng](src/fish_features/retrieval_profile.json). Trọng số mặc định: **hình dạng 60%, màu sắc 20%, kết cấu 20%**, được chọn trên validation.
+
+## Tách nền ảnh mạng trước khi tìm kiếm
+
+Web hỗ trợ **BRIA RMBG-2.0 theo repo DucHai278**, xử lý local rồi ghép nền trắng trước trích rút. Cần cài dependency riêng và đăng nhập bằng tài khoản Hugging Face đã có quyền truy cập model:
+
+```powershell
+.venv/Scripts/python -m pip install -r requirements-background.txt
+.venv/Scripts/hf auth login
+.venv/Scripts/python -m fish_features bg-check --load
+```
+
+Nhập token trong terminal, không ghi vào mã nguồn. Sau đó mở web và bật “Tách nền bằng RMBG-2.0, ghép nền trắng”. Model chạy CPU 1024×1024, ghép alpha mềm lên nền trắng rồi letterbox 640×320. Cấu hình và hướng dẫn đầy đủ: [docs/background-removal.md](docs/background-removal.md). Ảnh gallery vẫn dùng pipeline mục 3 và không chạy lại model.
 
 ## Giao diện web local
 
@@ -13,10 +29,15 @@ docker compose up -d --wait
 
 Mở **http://127.0.0.1:8000** trong trình duyệt. Giao diện cho phép:
 
+- Upload ảnh mới để tìm top 5; lật ngang nếu đầu cá hướng phải; xem khoảng cách từng nhóm và tải JSON toàn bộ kết quả.
+- Mở ảnh dataset rồi bấm “Dùng ảnh này tìm tương đồng”; ảnh trùng pixel sẽ tự bị loại khỏi top 5.
+
 - Xem thống kê CSDL, tìm ảnh theo tên và lọc theo loài, phân trang.
 - Chọn ảnh để đối chiếu ảnh gốc, mặt nạ và đường bao. Hai ảnh phân đoạn dựng lại theo cấu hình của bản ghi đang xem.
 - Xem biểu đồ, bảng toàn bộ giá trị của 8 nhóm đặc trưng đã lưu trong PostgreSQL.
 - Chọn cấu hình nếu một ảnh có nhiều bộ đặc trưng; xem metadata, tham số và tải JSON.
+
+Đầu vào tìm kiếm: một con cá nằm ngang, đầu trái. Với ảnh mạng có nền, bật RMBG-2.0 để ghép nền trắng trước trích rút; nếu tắt, ảnh phải có nền trắng chuẩn. Ảnh khác kích thước được co giãn giữ tỉ lệ và letterbox về 640×320. Trọng số tìm kiếm/cấu hình đánh giá được công khai ở cuối trang. Kết quả có điểm S=1−D, không phải xác suất cùng loài.
 
 Server chỉ lắng nghe trên máy local, không cần cài thêm thư viện web hoặc Node.js. Dừng bằng `Ctrl+C` trong terminal chạy server. Nếu cổng bận, chạy `.venv/Scripts/python -m fish_features.web --port 8001` rồi mở cổng tương ứng. Web chỉ đọc dữ liệu, không thay đổi các vector đã lưu.
 
@@ -39,6 +60,17 @@ docker compose up -d --wait
 .venv/Scripts/python -m fish_features db-load
 .venv/Scripts/python -m fish_features db-stats
 ```
+
+## Tìm kiếm và đánh giá qua CLI
+
+```powershell
+.venv/Scripts/python -m fish_features search data/images/species_101_cheilinus_chlorourus_936.png --output outputs/query.json
+.venv/Scripts/python -m fish_features evaluate --output outputs/evaluation
+```
+
+`search` dùng toàn bộ gallery trong PostgreSQL có đúng config_id. `evaluate` chia 530 gallery /208 validation /262 test bằng seed42, fit scaler chỉ trên gallery và chọn trong 8 phương án bằng validation mAP@5. Kết quả test: P@5=0,110687; Hit@5=0,477099; mAP@5=0,228255. Nhãn relevance là cùng mã loài từ tên file, chưa phải nhãn tương đồng thị giác thủ công. Báo cáo đầy đủ: [docs/muc4.md](docs/muc4.md), số liệu máy đọc: [docs/task4_evaluation.json](docs/task4_evaluation.json).
+
+Lệnh đánh giá không tự sửa cấu hình tìm kiếm. Profile được chọn xuất ở `outputs/evaluation/selected_profile.json`; CLI hỗ trợ `search --profile ...` để thử. Các file output có cấu hình, vector và mean/std cụ thể để tái lập.
 
 Python 3.11 trở lên; môi trường đã kiểm thử dùng Python 3.14. Không cần cài PostgreSQL trực tiếp. Cổng host là **5433**, user `fish`, password `fish_local`, database `fish_features`. Đây là thông tin cho môi trường học tập local, cổng chỉ mở trên localhost.
 
@@ -68,9 +100,15 @@ src/fish_features/
   __main__.py                  Các lệnh CLI
   web.py                       HTTP server local và API đọc CSDL
   web_static/                  Giao diện HTML/CSS/JavaScript
+  query.py                     Chuẩn hóa ảnh truy vấn và pipeline tìm kiếm
+  retrieval.py                 Khoảng cách, scaler gallery và xếp hạng
+  retrieval_profile.json       Top K, trọng số và cấu hình đang dùng
+  evaluation.py                Holdout, chọn trọng số và đánh giá
 sql/                           Schema và ví dụ quản trị
 tests/                         Kiểm chứng công thức, quy ước
 docs/muc3.md                   Thuyết minh mục 3 và đối chiếu báo cáo
+docs/muc4.md                   Thuyết minh, cấu hình và kết quả mục 4
+docs/task4_evaluation.json     Số liệu đánh giá mục 4 có thể kiểm tra
 docs/verification.md           Kết quả chạy thực tế
 data/images/                   Ảnh giải nén, giữ nguyên tên gốc
 outputs/default/
@@ -138,4 +176,4 @@ CLI Python đọc biến môi trường hệ điều hành, không tự đọc f
 
 Sao lưu/khôi phục có thể dùng `pg_dump` và `psql` trong container. Giữ cùng dataset ảnh khi chuyển CSDL sang máy khác vì đường dẫn ảnh là đường dẫn tương đối với `data/images`.
 
-Phạm vi hiện tại là mục 3 và giao diện web kiểm tra dữ liệu local. Cấu trúc vector và hàm `extract()` đã sẵn sàng để mục 4 dùng chung; việc xếp hạng top 5, chọn trọng số và đánh giá truy hồi thuộc bước tiếp theo.
+Phạm vi hiện tại gồm mục 3, mục 4 và giao diện demo local. Bản backup trước mục 4 nằm ở nhánh `task/3.0`; phát triển tổng hợp trên `main`.

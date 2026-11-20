@@ -101,12 +101,37 @@ def main():
     sub.add_parser("db-stats")
     p = sub.add_parser("db-inspect")
     p.add_argument("path", help="Duong dan tuong doi trong data/images")
+    p = sub.add_parser("search", help="Anh truy van -> top 5 va chi tiet diem")
+    p.add_argument("image")
+    p.add_argument("--profile")
+    p.add_argument("--flip", action="store_true")
+    p.add_argument("--background", choices=["none", "rmbg2"], default="none")
+    p.add_argument("--output", default="outputs/query.json")
+    p = sub.add_parser("evaluate", help="Danh gia gallery/validation/test tach biet")
+    p.add_argument("--output", default="outputs/evaluation")
+    p.add_argument("--profile")
+    p = sub.add_parser("bg-check", help="Kiem tra dependency, dang nhap va model RMBG-2.0")
+    p.add_argument("--load", action="store_true", help="Tai va nap model bang credential Hugging Face local")
     args = parser.parse_args()
     try:
         if args.command == "unpack":
             print(json.dumps(unpack(args.archive, args.output), indent=2))
         elif args.command == "extract":
             return batch(args)
+        elif args.command == "search":
+            from .query import search_bytes
+            result = search_bytes(Path(args.image).read_bytes(), Path(args.image).name, args.flip, args.profile, background=args.background)
+            Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+            write_json(args.output, result)
+            print(json.dumps({"results": [{k: r[k] for k in ("rank", "path", "similarity", "distance")} for r in result["results"]],
+                              "output": args.output, "profile": result["profile"]}, indent=2))
+        elif args.command == "evaluate":
+            from .evaluation import evaluate
+            report = evaluate(args.output, args.profile)
+            print(json.dumps({k: report[k] for k in ("split_counts", "selected_candidate", "validation", "test", "seconds")}, indent=2))
+        elif args.command == "bg-check":
+            from .background import status, warmup
+            print(json.dumps(warmup() if args.load else status(), ensure_ascii=False, indent=2))
         else:
             from . import database as db
             if args.command == "db-init":

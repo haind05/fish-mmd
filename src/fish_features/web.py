@@ -1,7 +1,6 @@
 """Giao dien kiem tra local: python -m fish_features.web."""
 import argparse
 from functools import lru_cache
-from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
@@ -11,6 +10,9 @@ import numpy as np
 from psycopg.rows import dict_row
 from .database import connect
 from .preprocessing import segment
+from .query import MAX_UPLOAD, search_bytes
+from .retrieval import read_profile
+from .background import BackgroundUnavailable, status as background_status
 
 STATIC = Path(__file__).parent / "web_static"
 
@@ -99,13 +101,24 @@ class Handler(BaseHTTPRequestHandler):
         url = urlparse(self.path)
         query = parse_qs(url.query)
         try:
-            if url.path in ("/", "/app.js", "/style.css"):
+            if url.path in ("/", "/app.js", "/style.css", "/retrieval.js", "/retrieval.css"):
                 filename, mime = {"/": ("index.html", "text/html; charset=utf-8"),
                     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+                    "/retrieval.js": ("retrieval.js", "text/javascript; charset=utf-8"),
+                    "/retrieval.css": ("retrieval.css", "text/css; charset=utf-8"),
                     "/style.css": ("style.css", "text/css; charset=utf-8")}[url.path]
                 self.respond((STATIC / filename).read_bytes(), mime)
             elif url.path == "/api/overview":
                 self.respond(overview())
+            elif url.path == "/api/retrieval-config":
+                self.respond(read_profile())
+            elif url.path == "/api/background-status":
+                self.respond(background_status())
+            elif url.path == "/api/evaluation":
+                report = Path(__file__).resolve().parents[2] / "docs/task4_evaluation.json"
+                if not report.is_file():
+                    raise FileNotFoundError("Chua co bao cao danh gia")
+                self.respond(json.loads(report.read_text(encoding="utf-8")))
             elif url.path == "/api/images":
                 self.respond(gallery(query))
             elif url.path.startswith("/api/images/"):
@@ -130,11 +143,46 @@ class Handler(BaseHTTPRequestHandler):
             self.respond({"error": str(exc)}, status=404)
         except ValueError as exc:
             self.respond({"error": str(exc)}, status=400)
-        except (BrokenPipeError, ConnectionResetError):
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
             pass
         except Exception:
             self.log_error("Database or server error")
             self.respond({"error": "Khong ket noi duoc CSDL hoac du lieu chua san sang. Chay docker compose up -d --wait va kiem tra db-stats."}, status=503)
+
+    def do_POST(self):
+        url = urlparse(self.path)
+        if url.path != "/api/search":
+            self.respond({"error": "Khong tim thay duong dan"}, status=404)
+            return
+        try:
+            query = parse_qs(url.query)
+            length = int(self.headers.get("Content-Length", "0"))
+            if length < 0 or length > MAX_UPLOAD:
+                self.close_connection = True
+                self.respond({"error": "Kich thuoc upload toi da 10 MiB"}, status=413)
+                return
+            if query.get("id"):
+                if length:
+                    raise ValueError("Khong gui kem upload khi dung ID dataset")
+                record = detail(int(query["id"][0]))
+                path = resolve_image(self.server.images_root, record["image"]["relative_path"])
+                raw, filename = path.read_bytes(), path.name
+                background = "none"  # Dataset da chuan hoa, khong infer lai model.
+            else:
+                raw, filename = self.rfile.read(length), query.get("filename", ["query.png"])[0]
+                background = query.get("background", ["none"])[0]
+            self.respond(search_bytes(raw, filename, query.get("flip", ["0"])[0] == "1", background=background))
+        except BackgroundUnavailable as exc:
+            self.respond({"error": str(exc), "code": "background_unavailable"}, status=503)
+        except (ValueError, cv2.error) as exc:
+            self.respond({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            self.respond({"error": str(exc)}, status=404)
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+            pass
+        except Exception:
+            self.log_error("Search error")
+            self.respond({"error": "Khong tim kiem duoc. Kiem tra PostgreSQL va bo dac trung da nap."}, status=503)
 
 
 def main():

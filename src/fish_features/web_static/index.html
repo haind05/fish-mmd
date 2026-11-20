@@ -1,17 +1,24 @@
 <!doctype html>
 <html lang="vi">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fish Atlas · Kiểm tra đặc trưng</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fish Atlas · Tìm kiếm ảnh cá</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/retrieval.css"><script defer src="/app.js"></script><script defer src="/retrieval.js"></script></head>
 <body>
 <header><a class="brand" href="/" aria-label="Fish Atlas trang chủ"><span class="logo">≈</span> FISH ATLAS</a><span class="header-note">HỆ CƠ SỞ DỮ LIỆU ĐA PHƯƠNG TIỆN</span><span class="local">LOCAL WORKSPACE</span></header>
 <main>
-<section class="intro"><div><p class="eyebrow">KHÔNG GIAN KIỂM TRA DỮ LIỆU</p><h1>Khám phá từng đặc trưng.</h1><p class="subtitle">Đối chiếu ảnh cá, vùng phân đoạn và các giá trị đã lưu trong PostgreSQL.</p></div><div class="intro-stamp">ẢNH CÁ<br><strong>DATA EXPLORER</strong><span>Mục 3 · Trích rút & lưu trữ</span></div></section>
+<section class="intro"><div><p class="eyebrow">TÌM KIẾM ẢNH THEO NỘI DUNG</p><h1>Từ một ảnh cá, tìm nét tương đồng.</h1><p class="subtitle">Kết hợp hình dạng, màu sắc và kết cấu. Xem 5 ảnh gần nhất và cách hệ thống tính điểm.</p></div><div class="intro-stamp">ẢNH CÁ<br><strong>CONTENT-BASED SEARCH</strong><span>Mục 4 · Truy hồi & đánh giá</span></div></section>
 <div id="notice" role="alert" hidden></div>
 <section class="stats" aria-label="Thống kê dataset"><div><span>Ảnh trong dataset</span><strong id="images-count">—</strong></div><div><span>Mã loài từ tên file</span><strong id="species-count">—</strong></div><div><span>Bộ đặc trưng đã lưu</span><strong id="features-count">—</strong></div><div><span>Kết nối PostgreSQL</span><strong id="db-status" class="connection">Đang kiểm tra…</strong></div></section>
+<nav class="section-nav"><a href="#search-section">Tìm ảnh tương đồng</a><a href="#library">Thư viện dữ liệu</a><a href="#evaluation-section">Cấu hình & đánh giá</a></nav>
+<section id="search-section" class="search-section"><div class="section-title"><div><p class="eyebrow">ẢNH TRUY VẤN</p><h2>Bắt đầu từ một ảnh mới</h2></div><span class="badge">Top 5 · 8 nhóm đặc trưng</span></div>
+<form id="query-form"><div class="upload-box"><label for="query-file"><strong>Chọn ảnh cá trên máy của bạn</strong><span>PNG, JPEG hoặc WebP · Tối đa 10 MiB</span></label><input id="query-file" type="file" accept="image/png,image/jpeg,image/webp" required></div><div class="query-actions"><div class="query-options"><label class="flip-label"><input id="remove-background" type="checkbox" checked> Tách nền bằng RMBG-2.0, ghép nền trắng</label><label class="flip-label"><input id="flip-query" type="checkbox"> Lật ngang ảnh (khi đầu cá hướng phải)</label></div><button id="search-submit" class="primary" type="submit">Tìm 5 ảnh tương đồng</button></div></form>
+<p id="background-status" class="muted" role="status">Đang kiểm tra RMBG-2.0…</p>
+<p class="muted">Ảnh nên chứa một con cá nằm ngang, đầu hướng trái. Bật tách nền khi dùng ảnh mạng; có thể bỏ chọn nếu ảnh đã có nền trắng chuẩn. Ảnh được xử lý trên máy local, sau đó co giãn giữ tỉ lệ về 640 × 320. Lần đầu tải/nạp model có thể lâu; hệ thống không tự nhận diện hướng đầu.</p>
+<p id="query-message" role="status" aria-live="polite" hidden></p><div id="search-results"></div></section>
 <section id="library"><div class="section-title"><div><p class="eyebrow">THƯ VIỆN ẢNH</p><h2>Dataset của bạn <span id="result-count"></span></h2></div><button id="refresh" class="secondary">Làm mới dữ liệu</button></div>
 <form id="filters" class="filters"><label class="search"><span>Tìm theo tên ảnh hoặc tên loài</span><input id="search" type="search" placeholder="Ví dụ: cheilinus, lutjanus…" autocomplete="off"></label><label><span>Lọc theo loài</span><select id="species"><option value="">Tất cả loài</option></select></label><button type="submit" class="primary">Tìm ảnh</button></form>
 <p class="hint">Chọn một ảnh để xem mặt nạ và 8 nhóm đặc trưng.</p><div id="grid" class="grid" aria-live="polite"></div>
 <nav class="pagination" aria-label="Phân trang"><button id="previous" class="secondary">Trang trước</button><span id="page-label"></span><button id="next" class="secondary">Trang sau</button></nav></section>
-<footer><span>FISH ATLAS / MỤC 3</span><span>Dữ liệu đọc trực tiếp từ CSDL · Nhãn loài lấy từ tên file</span></footer>
+<section id="evaluation-section" class="evaluation-section"><div class="section-title"><div><p class="eyebrow">CẤU HÌNH CÔNG KHAI</p><h2>Từ khoảng cách đến kết quả</h2></div></div><div id="retrieval-config" class="feature-panel">Đang tải cấu hình…</div><div id="evaluation-summary" class="feature-panel">Đang tải đánh giá…</div></section>
+<footer><span>FISH ATLAS / MỤC 3 & 4</span><span>Dữ liệu đọc trực tiếp từ CSDL · Nhãn loài lấy từ tên file</span></footer>
 </main>
 <dialog id="detail"><div class="dialog-header"><div><p class="eyebrow">CHI TIẾT ẢNH</p><h2 id="detail-title">Đang tải…</h2></div><button id="close-detail" class="secondary">Đóng</button></div><div id="detail-body"></div></dialog>
 </body></html>

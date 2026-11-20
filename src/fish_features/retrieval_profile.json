@@ -1,0 +1,23 @@
+{
+  "version": "retrieval-1.0.0",
+  "feature_config_id": "dee14083f1e017e28de89081ea10c392b830bb7331a19d6e70459a809c9ee484",
+  "top_k": 5,
+  "normalization": "gallery_population_std_rms_then_r_over_1_plus_r",
+  "exclude_identical_pixels": true,
+  "weights": {
+    "hsv": 0.1,
+    "spatial_hsv": 0.07500000000000001,
+    "color_moments": 0.025,
+    "geometry": 0.19999999999999998,
+    "fourier": 0.3,
+    "contour_profile": 0.09999999999999999,
+    "glcm": 0.1,
+    "ulbp": 0.1
+  },
+  "selection": {
+    "method": "max_validation_map_at_5",
+    "candidate": "shape_60",
+    "seed": 42,
+    "dataset_fingerprint": "16f0dc3e0a545ddee0a4b05220055b133609e6d941ed8b6c7dee0428674c734f"
+  }
+}

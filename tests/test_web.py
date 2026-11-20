@@ -1,7 +1,7 @@
 from pathlib import Path
 import threading
 from urllib.error import HTTPError
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 import json
 import pytest
 from http.server import ThreadingHTTPServer
@@ -59,3 +59,38 @@ def test_database_unavailable_shows_recovery_message(server, monkeypatch):
     data = json.load(error.value)
     assert "docker compose" in data["error"]
     assert "private connection" not in data["error"]
+
+
+def test_search_upload_reaches_pipeline(server, monkeypatch):
+    monkeypatch.setattr(web, "search_bytes", lambda raw, filename, flip, background: {"size": len(raw), "flip": flip, "filename": filename})
+    with urlopen(Request(server+"/api/search?filename=fish.png&flip=1", data=b'pixels', method='POST')) as response:
+        data = json.load(response)
+        assert data == {"size": 6, "flip": True, "filename": "fish.png"}
+
+
+def test_search_rejects_oversize_before_reading(server):
+    request = Request(server+"/api/search", data=b'', headers={"Content-Length": str(web.MAX_UPLOAD+1)}, method='POST')
+    with pytest.raises(HTTPError) as error:
+        urlopen(request)
+    assert error.value.code == 413
+
+
+def test_search_rmbg_unavailable_returns_actionable_error(server, monkeypatch):
+    def unavailable(*args, **kwargs):
+        assert kwargs['background'] == 'rmbg2'
+        raise web.BackgroundUnavailable('Dang nhap Hugging Face tren may')
+    monkeypatch.setattr(web, 'search_bytes', unavailable)
+    with pytest.raises(HTTPError) as error:
+        urlopen(Request(server+'/api/search?background=rmbg2', data=b'image', method='POST'))
+    assert error.value.code == 503
+    assert json.load(error.value)['code'] == 'background_unavailable'
+
+
+def test_dataset_query_never_runs_background_model(server, monkeypatch, tmp_path):
+    import urllib.request
+    # server fixture dung tmp_path lam images_root.
+    (tmp_path/'fish.png').write_bytes(b'image')
+    monkeypatch.setattr(web, 'detail', lambda image_id: {'image': {'relative_path':'fish.png'}})
+    monkeypatch.setattr(web, 'search_bytes', lambda raw, filename, flip, background: {'background':background})
+    with urlopen(Request(server+'/api/search?id=1&background=rmbg2', data=b'', method='POST')) as response:
+        assert json.load(response)['background'] == 'none'

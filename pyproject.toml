@@ -15,7 +15,7 @@ dependencies = {file = ["requirements.txt"]}
 where = ["src"]
 
 [tool.setuptools.package-data]
-fish_features = ["web_static/*"]
+fish_features = ["web_static/*", "retrieval_profile.json", "background_profile.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
