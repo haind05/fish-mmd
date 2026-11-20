@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="vi">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fish Atlas · Kiểm tra đặc trưng</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head>
+<body>
+<header><a class="brand" href="/" aria-label="Fish Atlas trang chủ"><span class="logo">≈</span> FISH ATLAS</a><span class="header-note">HỆ CƠ SỞ DỮ LIỆU ĐA PHƯƠNG TIỆN</span><span class="local">LOCAL WORKSPACE</span></header>
+<main>
+<section class="intro"><div><p class="eyebrow">KHÔNG GIAN KIỂM TRA DỮ LIỆU</p><h1>Khám phá từng đặc trưng.</h1><p class="subtitle">Đối chiếu ảnh cá, vùng phân đoạn và các giá trị đã lưu trong PostgreSQL.</p></div><div class="intro-stamp">ẢNH CÁ<br><strong>DATA EXPLORER</strong><span>Mục 3 · Trích rút & lưu trữ</span></div></section>
+<div id="notice" role="alert" hidden></div>
+<section class="stats" aria-label="Thống kê dataset"><div><span>Ảnh trong dataset</span><strong id="images-count">—</strong></div><div><span>Mã loài từ tên file</span><strong id="species-count">—</strong></div><div><span>Bộ đặc trưng đã lưu</span><strong id="features-count">—</strong></div><div><span>Kết nối PostgreSQL</span><strong id="db-status" class="connection">Đang kiểm tra…</strong></div></section>
+<section id="library"><div class="section-title"><div><p class="eyebrow">THƯ VIỆN ẢNH</p><h2>Dataset của bạn <span id="result-count"></span></h2></div><button id="refresh" class="secondary">Làm mới dữ liệu</button></div>
+<form id="filters" class="filters"><label class="search"><span>Tìm theo tên ảnh hoặc tên loài</span><input id="search" type="search" placeholder="Ví dụ: cheilinus, lutjanus…" autocomplete="off"></label><label><span>Lọc theo loài</span><select id="species"><option value="">Tất cả loài</option></select></label><button type="submit" class="primary">Tìm ảnh</button></form>
+<p class="hint">Chọn một ảnh để xem mặt nạ và 8 nhóm đặc trưng.</p><div id="grid" class="grid" aria-live="polite"></div>
+<nav class="pagination" aria-label="Phân trang"><button id="previous" class="secondary">Trang trước</button><span id="page-label"></span><button id="next" class="secondary">Trang sau</button></nav></section>
+<footer><span>FISH ATLAS / MỤC 3</span><span>Dữ liệu đọc trực tiếp từ CSDL · Nhãn loài lấy từ tên file</span></footer>
+</main>
+<dialog id="detail"><div class="dialog-header"><div><p class="eyebrow">CHI TIẾT ẢNH</p><h2 id="detail-title">Đang tải…</h2></div><button id="close-detail" class="secondary">Đóng</button></div><div id="detail-body"></div></dialog>
+</body></html>
