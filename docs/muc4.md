@@ -49,8 +49,7 @@ Giữ nguyên cấu hình mục 3, không trích lại dataset bằng phương p
 | Phiên bản thuật toán trích rút | — | `1.0.0` |
 | Kích thước ảnh | — | 640×320, RGB nguồn/BGR trong OpenCV, 8-bit |
 | Tách nền | — | Ít nhất một kênh <245; thành phần liên thông lớn nhất; lấp lỗ kín |
-| GLCM | 20 | 32 mức xám; độ dời `(0,1),(-1,1),(-1,0),(-1,-1)`; không đối xứng hóa; cả hai pixel thuộc mask |
-| Thống kê GLCM | — | ASM, Contrast, Homogeneity, Correlation, Entropy cho mỗi độ dời; 5 thống kê × 4 độ dời tạo 20 chiều đã tính ở hàng GLCM |
+| GLCM | **20** | 32 mức xám; 4 độ dời `(0,1),(-1,1),(-1,0),(-1,-1)`; mỗi độ dời tính 5 thống kê: ASM, Contrast, Homogeneity, Correlation, Entropy → **5 × 4 = 20 chiều**; không đối xứng hóa; cả hai pixel thuộc mask |
 | Circular Uniform LBP | 59 | P=8, R=1, nội suy bilinear, uniform giữ hướng |
 | Geometry | 3 | Aspect Ratio, Solidity, Extent; diện tích cùng quy ước raster |
 | Contour Profile | 256 | 256 mẫu đều theo cung, chuẩn hóa khoảng cách bằng trung bình |
