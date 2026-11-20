@@ -44,20 +44,23 @@ Các vector gallery được cache theo `(config_id, count, max(extracted_at), m
 
 Giữ nguyên cấu hình mục 3, không trích lại dataset bằng phương pháp khác:
 
-| Tham số | Giá trị |
-|---|---|
-| Phiên bản thuật toán trích rút | `1.0.0` |
-| Kích thước ảnh | 640×320, RGB nguồn/BGR trong OpenCV, 8-bit |
-| Tách nền | Ít nhất một kênh <245; thành phần liên thông lớn nhất; lấp lỗ kín |
-| GLCM | 32 mức xám; độ dời `(0,1),(-1,1),(-1,0),(-1,-1)`; không đối xứng hóa; cả hai pixel thuộc mask |
-| Thống kê GLCM | ASM, Contrast, Homogeneity, Correlation, Entropy cho mỗi độ dời: 20 chiều |
-| Circular Uniform LBP | P=8, R=1, nội suy bilinear, uniform giữ hướng: 59 chiều |
-| Geometry | Aspect Ratio, Solidity, Extent: 3 chiều; diện tích cùng quy ước raster |
-| Contour Profile | 256 mẫu đều theo cung, chuẩn hóa khoảng cách bằng trung bình |
-| Fourier | 256 điểm; D2–D11 chia biên độ F1: 10 chiều |
-| HSV toàn cục | 12×4×4 =192 bin, chuẩn hóa L1 |
-| Color Moment | RGB/255; mean, std tổng thể, căn bậc ba có dấu: 9 chiều |
-| Spatial HSV | Bounding box 3 cột×2 hàng; 192 bin/ô, L1 riêng từng ô: 1.152 chiều |
+| Tham số | Số chiều | Giá trị |
+|---|---:|---|
+| Phiên bản thuật toán trích rút | — | `1.0.0` |
+| Kích thước ảnh | — | 640×320, RGB nguồn/BGR trong OpenCV, 8-bit |
+| Tách nền | — | Ít nhất một kênh <245; thành phần liên thông lớn nhất; lấp lỗ kín |
+| GLCM | 20 | 32 mức xám; độ dời `(0,1),(-1,1),(-1,0),(-1,-1)`; không đối xứng hóa; cả hai pixel thuộc mask |
+| Thống kê GLCM | — | ASM, Contrast, Homogeneity, Correlation, Entropy cho mỗi độ dời; 5 thống kê × 4 độ dời tạo 20 chiều đã tính ở hàng GLCM |
+| Circular Uniform LBP | 59 | P=8, R=1, nội suy bilinear, uniform giữ hướng |
+| Geometry | 3 | Aspect Ratio, Solidity, Extent; diện tích cùng quy ước raster |
+| Contour Profile | 256 | 256 mẫu đều theo cung, chuẩn hóa khoảng cách bằng trung bình |
+| Fourier | 10 | 256 điểm; D2–D11 chia biên độ F1 |
+| HSV toàn cục | 192 | 12×4×4 bin, chuẩn hóa L1 |
+| Color Moment | 9 | RGB/255; mean, std tổng thể, căn bậc ba có dấu |
+| Spatial HSV | 1.152 | Bounding box 3 cột×2 hàng; 192 bin/ô, L1 riêng từng ô |
+| **Tổng 8 nhóm đặc trưng** | **1.701** | Lưu riêng từng nhóm để tính khoảng cách và kết hợp trọng số |
+
+Dấu “—” chỉ thông số cấu hình hoặc phần diễn giải, không phải một vector riêng để cộng vào tổng số chiều.
 
 Mã cấu hình trích rút:
 
